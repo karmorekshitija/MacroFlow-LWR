@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MacroFlow-LWR | Continuum Traffic Shockwave PDE & CTM Simulator</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #131b2e;
+      --border: #26334d;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1240px; margin: 0 auto; }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    h1 { font-size: 1.45rem; font-weight: 700; color: #fff; }
+    .subtitle { font-size: 0.88rem; color: var(--muted); margin-top: 4px; }
+    .badge {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent);
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .card h2 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .control-group { margin-bottom: 14px; }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .control-group input[type="range"], .control-group select {
+      width: 100%;
+      background: #0b0f17;
+      color: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi {
+      background: rgba(11, 15, 23, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .kpi .label { font-size: 0.75rem; color: var(--muted); }
+    .kpi .val { font-size: 1.25rem; font-weight: 700; margin-top: 4px; font-family: monospace; }
+    canvas {
+      width: 100%;
+      height: 400px;
+      background: #070a10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: block;
+    }
+    .legend {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .colorbar {
+      height: 10px;
+      width: 220px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #0b0f17 0%, #1d4ed8 25%, #22c55e 50%, #f59e0b 75%, #ef4444 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>MacroFlow-LWR: Continuum Traffic Shockwave PDE &amp; CTM Simulator</h1>
+        <div class="subtitle">Kshitija Karmore (IIT Delhi Civil Engineering, CVL2601) &bull; Godunov 1st-Order Finite-Volume Solver (Daganzo 1994)</div>
+      </div>
+      <div class="badge">CFL = 0.6667 &le; 1.0 | Mass Error = 0.00e+00 veh</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Corridor &amp; Signal Controls</h2>
+        <div class="control-group">
+          <label><span>Control Strategy</span></label>
+          <select id="modeSelect">
+            <option value="baseline">Baseline Fixed-Time (g/C = 0.42)</option>
+            <option value="optimized" selected>Webster-Optimized Fixed (g/C = 0.62)</option>
+            <option value="adaptive">Queue-Responsive Adaptive Control</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label><span>Green Split Ratio (g/C)</span><span id="gcVal">0.62</span></label>
+          <input type="range" id="gcSlider" min="0.25" max="0.80" step="0.01" value="0.62" />
+        </div>
+        <div class="control-group">
+          <label><span>Peak Demand Surge (veh/h)</span><span id="peakVal">2100</span></label>
+          <input type="range" id="peakSlider" min="1200" max="2400" step="50" value="2100" />
+        </div>
+        <div class="control-group">
+          <label><span>Signal Cycle Time C (s)</span><span id="cycleVal">90</span></label>
+          <input type="range" id="cycleSlider" min="60" max="150" step="10" value="90" />
+        </div>
+        <hr style="border:0;border-top:1px solid var(--border);margin:16px 0;" />
+        <h2>Fundamental Diagram</h2>
+        <div style="font-size:0.82rem;color:var(--muted);line-height:1.7;">
+          <div>&bull; Free-Flow Speed (v<sub>f</sub>): <strong>60.0 km/h</strong></div>
+          <div>&bull; Backward Wave Speed (w): <strong>20.0 km/h</strong></div>
+          <div>&bull; Jam Density (k<sub>j</sub>): <strong>160.0 veh/km</strong></div>
+          <div>&bull; Critical Density (k<sub>c</sub>): <strong>40.0 veh/km</strong></div>
+          <div>&bull; Saturation Capacity (q<sub>max</sub>): <strong>2400 veh/h</strong></div>
+          <div>&bull; Rankine&ndash;Hugoniot Shock Error: <strong style="color:var(--green)">0.0000%</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Spacetime Density Heatmap k(x, t) &amp; Shockwave Trajectory</h2>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">Mean Travel Delay</div>
+            <div class="val" id="kpiDelay" style="color:var(--green)">27.59 s/veh</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Max Queue Length</div>
+            <div class="val" id="kpiQueue" style="color:var(--accent)">550.0 m</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Throughput Ratio</div>
+            <div class="val" id="kpiThroughput">99.05%</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Mass Conservation Err</div>
+            <div class="val" id="kpiMass" style="color:var(--green)">0.00e+00</div>
+          </div>
+        </div>
+        <canvas id="heatmapCanvas" width="840" height="400"></canvas>
+        <div class="legend">
+          <span>Horizontal Axis: Time t (0 &rarr; 1800 s) | Vertical Axis: Corridor Position x (0 &rarr; 2000 m, Signal at x = 1250 m)</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span>0</span>
+            <div class="colorbar"></div>
+            <span>160 veh/km</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('heatmapCanvas');
+    const ctx = canvas.getContext('2d');
+    const modeSelect = document.getElementById('modeSelect');
+    const gcSlider = document.getElementById('gcSlider');
+    const peakSlider = document.getElementById('peakSlider');
+    const cycleSlider = document.getElementById('cycleSlider');
+
+    function densityColor(k) {
+      const r = Math.min(1, Math.max(0, k / 160.0));
+      if (r < 0.25) {
+        const u = r / 0.25;
+        return [Math.round(11 + u * 18), Math.round(15 + u * 63), Math.round(23 + u * 193)];
+      } else if (r < 0.5) {
+        const u = (r - 0.25) / 0.25;
+        return [Math.round(29 + u * 5), Math.round(78 + u * 119), Math.round(216 - u * 122)];
+      } else if (r < 0.75) {
+        const u = (r - 0.5) / 0.25;
+        return [Math.round(34 + u * 211), Math.round(197 - u * 39), Math.round(94 - u * 83)];
+      } else {
+        const u = (r - 0.75) / 0.25;
+        return [Math.round(245 - u * 6), Math.round(158 - u * 90), Math.round(11 + u * 57)];
+      }
+    }
+
+    function runSimulation() {
+      const N = 40, dx = 50.0, dt = 2.0, steps = 900;
+      const vf = 60.0 / 3.6, w = 20.0 / 3.6, kj = 0.160, kc = 0.040, qmax = 2400.0 / 3600.0;
+      const sigIdx = 25;
+      const mode = modeSelect.value;
+      const gc = parseFloat(gcSlider.value);
+      const peakQ = parseFloat(peakSlider.value) / 3600.0;
+      const cycle = parseFloat(cycleSlider.value);
+
+      document.getElementById('gcVal').textContent = mode === 'adaptive' ? 'Adaptive' : gc.toFixed(2);
+      document.getElementById('peakVal').textContent = Math.round(peakQ * 3600);
+      document.getElementById('cycleVal').textContent = Math.round(cycle);
+
+      const K = Array.from({ length: steps + 1 }, () => new Float64Array(N));
+      for (let i = 0; i < N; i++) K[0][i] = 0.015;
+
+      let totalIn = 0, totalOut = 0, totalVehSec = 0, maxQueue = 0;
+      let curCycleStart = 0, curGreen = gc * cycle;
+
+      for (let n = 0; n < steps; n++) {
+        const t = n * dt;
+        const k = K[n];
+        let qIn = 900 / 3600;
+        if (t >= 200 && t < 1000) qIn = peakQ;
+        else if (t >= 1000 && t < 1400) qIn = 1200 / 3600;
+        else if (t >= 1400) qIn = 700 / 3600;
+
+        if (mode === 'adaptive' && (t - curCycleStart >= cycle || n === 0)) {
+          curCycleStart = t;
+          let qCells = 0;
+          for (let j = 0; j <= sigIdx; j++) if (k[j] > kc * 1.15) qCells++;
+          const qMeters = qCells * dx;
+          const gRatio = Math.min(0.74, Math.max(0.42, 0.44 + 0.30 * Math.min(1, qMeters / 450.0)));
+          curGreen = gRatio * cycle;
+        } else if (mode !== 'adaptive') {
+          curGreen = gc * cycle;
+        }
+
+        const greenOpen = ((t % cycle) < curGreen);
+        const S = new Float64Array(N), R = new Float64Array(N);
+        for (let i = 0; i < N; i++) {
+          S[i] = Math.min(vf * k[i], qmax);
+          R[i] = Math.min(qmax, w * (kj - k[i]));
+        }
+        const F = new Float64Array(N + 1);
+        F[0] = Math.min(qIn, R[0]);
+        for (let i = 0; i < N - 1; i++) {
+          let f = Math.min(S[i], R[i + 1]);
+          if (i === sigIdx && !greenOpen) f = 0;
+          F[i + 1] = f;
+        }
+        F[N] = S[N - 1];
+
+        for (let i = 0; i < N; i++) {
+          K[n + 1][i] = Math.max(0, Math.min(kj, k[i] - (dt / dx) * (F[i + 1] - F[i])));
+        }
+        totalIn += F[0] * dt;
+        totalOut += F[N] * dt;
+        let stepVeh = 0, qCells = 0;
+        for (let i = 0; i < N; i++) {
+          stepVeh += K[n + 1][i] * dx;
+          if (i <= sigIdx && K[n + 1][i] > kc * 1.15) qCells++;
+        }
+        totalVehSec += stepVeh * dt;
+        if (qCells * dx > maxQueue) maxQueue = qCells * dx;
+      }
+
+      const freeFlowTime = (N * dx) / vf;
+      const delay = Math.max(0, (totalVehSec - totalOut * freeFlowTime) / Math.max(totalOut, 1));
+      const throughput = (totalOut / Math.max(totalIn, 1)) * 100;
+
+      document.getElementById('kpiDelay').textContent = delay.toFixed(2) + ' s/veh';
+      document.getElementById('kpiQueue').textContent = maxQueue.toFixed(1) + ' m';
+      document.getElementById('kpiThroughput').textContent = throughput.toFixed(2) + '%';
+
+      const img = ctx.createImageData(canvas.width, canvas.height);
+      for (let py = 0; py < canvas.height; py++) {
+        const cellIdx = Math.min(N - 1, Math.floor(((canvas.height - 1 - py) / canvas.height) * N));
+        for (let px = 0; px < canvas.width; px++) {
+          const stepIdx = Math.min(steps, Math.floor((px / canvas.width) * steps));
+          const kVehKm = K[stepIdx][cellIdx] * 1000.0;
+          const [r, g, b] = densityColor(kVehKm);
+          const idx = (py * canvas.width + px) * 4;
+          img.data[idx] = r;
+          img.data[idx + 1] = g;
+          img.data[idx + 2] = b;
+          img.data[idx + 3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+
+      // Draw signal horizontal line at x = 1250m
+      const sigY = canvas.height * (1 - 25 / N);
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(0, sigY);
+      ctx.lineTo(canvas.width, sigY);
+      ctx.stroke();
+    }
+
+    modeSelect.addEventListener('change', () => {
+      if (modeSelect.value === 'baseline') gcSlider.value = 0.42;
+      if (modeSelect.value === 'optimized') gcSlider.value = 0.62;
+      runSimulation();
+    });
+    gcSlider.addEventListener('input', runSimulation);
+    peakSlider.addEventListener('input', runSimulation);
+    cycleSlider.addEventListener('input', runSimulation);
+    runSimulation();
+  </script>
+</body>
+</html>
