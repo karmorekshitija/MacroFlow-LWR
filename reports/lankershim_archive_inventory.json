@@ -1,0 +1,11 @@
+{
+  "source_url": "https://data.transportation.gov/api/views/8ect-6jqj/files/62273322-a1e9-48fc-8692-b4c576bafc20?download=true&filename=Lankershim-Boulevard-LosAngeles-CA.zip",
+  "inspected_utc": "2026-10-14T14:24:29.597290+00:00",
+  "sha256": "8c14c09b45993d4aa18bcada587757104d96ae36ba270d4e99777a104652b2b9",
+  "bytes": 80179421,
+  "status": "invalid_archive",
+  "error": "File is not a zip file",
+  "cache_policy": "Reuse existing partial for inspection; never automatically redownload it",
+  "members": [],
+  "scope": "Archive inventory only; not model validation"
+}

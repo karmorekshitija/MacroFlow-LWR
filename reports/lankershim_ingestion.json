@@ -1,0 +1,32 @@
+{
+  "source_url": "https://data.transportation.gov/resource/8ect-6jqj.csv?%24query=SELECT+vehicle_id%2Cframe_id%2Cglobal_time%2Clocal_x%2Clocal_y%2Cv_vel%2Clane_id%2Cmovement%2Co_zone%2Cd_zone%2Cdirection%2Csection_id%2Cint_id+WHERE+location%3D%27lankershim%27+AND+direction%3D%272%27+AND+section_id%3D%273%27+ORDER+BY+global_time%2Cvehicle_id%2Cframe_id+LIMIT+1000000",
+  "count_query_url": "https://data.transportation.gov/resource/8ect-6jqj.json?%24query=SELECT+count%28%2A%29+AS+rows+WHERE+location%3D%27lankershim%27+AND+direction%3D%272%27+AND+section_id%3D%273%27",
+  "count_response_sha256": "92a57541c82f411bc8ede9eb5aa0b11486c100dd559e7c38839216e355f51ffc",
+  "inspected_utc": "2026-10-14T15:34:49.232821+00:00",
+  "sha256": "a892863384e761486756402c273c1fecf6ed42af987de32d9f5637cbedfdd575",
+  "bytes": 10246561,
+  "expected_source_rows": 117003,
+  "count_matches": true,
+  "selection": "Northbound section 3, all lanes and movements; selected before fitting, not a verified stop-line approach",
+  "audit": {
+    "rows": 117003,
+    "partitions": {
+      "excluded": 11228,
+      "calibration": 45310,
+      "evaluation": 60465
+    },
+    "movement_row_counts": {
+      "1": 116913,
+      "3": 83,
+      "2": 7
+    },
+    "track_keys": 773,
+    "duplicate_track_time_keys": 0,
+    "negative_speed_rows": 0,
+    "within_subset_gaps_over_100ms": 4,
+    "largest_within_subset_gap_ms": 14100,
+    "off_grid_gaps": 0,
+    "gap_caveat": "Subset gaps can be exits/reentries; not automatically missing source frames"
+  },
+  "status": "Acquisition and QA only. Geometry and signal history still required for model validation."
+}

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="550" viewBox="0 0 900 550"><rect width="900" height="550" fill="white"/><g font-family="Arial,sans-serif" font-size="14" fill="#172b4d">
+<text x="450" y="30" text-anchor="middle" font-size="20">Synthetic fixed-signal sensitivity</text>
+<path d="M90 430 H840" stroke="#dde2e8"/>
+<text x="78" y="435" text-anchor="end">0</text>
+<text x="90" y="455" text-anchor="middle">0.4222</text>
+<path d="M90 362 H840" stroke="#dde2e8"/>
+<text x="78" y="367" text-anchor="end">19</text>
+<text x="240" y="455" text-anchor="middle">0.4622</text>
+<path d="M90 294 H840" stroke="#dde2e8"/>
+<text x="78" y="299" text-anchor="end">38.1</text>
+<text x="390" y="455" text-anchor="middle">0.5022</text>
+<path d="M90 226 H840" stroke="#dde2e8"/>
+<text x="78" y="231" text-anchor="end">57.1</text>
+<text x="540" y="455" text-anchor="middle">0.5422</text>
+<path d="M90 158 H840" stroke="#dde2e8"/>
+<text x="78" y="163" text-anchor="end">76.1</text>
+<text x="690" y="455" text-anchor="middle">0.5822</text>
+<path d="M90 90 H840" stroke="#dde2e8"/>
+<text x="78" y="95" text-anchor="end">95.1</text>
+<text x="840" y="455" text-anchor="middle">0.6222</text>
+<path d="M90 90 V430 H840" fill="none" stroke="#172b4d"/>
+<polyline points="90.00,391.45 506.63,421.82 840.00,424.65" stroke="#1768ac" stroke-width="2" fill="none"/>
+<circle cx="90.00" cy="391.45" r="3" fill="#1768ac"/>
+<circle cx="506.63" cy="421.82" r="3" fill="#1768ac"/>
+<circle cx="840.00" cy="424.65" r="3" fill="#1768ac"/>
+<text x="100" y="65" fill="#1768ac">Demand 0.75x</text>
+<polyline points="90.00,266.18 506.63,364.02 840.00,408.68" stroke="#c44536" stroke-width="2" fill="none"/>
+<circle cx="90.00" cy="266.18" r="3" fill="#c44536"/>
+<circle cx="506.63" cy="364.02" r="3" fill="#c44536"/>
+<circle cx="840.00" cy="408.68" r="3" fill="#c44536"/>
+<text x="340" y="65" fill="#c44536">Demand 1.0x</text>
+<polyline points="90.00,115.19 506.63,233.01 840.00,317.19" stroke="#23845c" stroke-width="2" fill="none"/>
+<circle cx="90.00" cy="115.19" r="3" fill="#23845c"/>
+<circle cx="506.63" cy="233.01" r="3" fill="#23845c"/>
+<circle cx="840.00" cy="317.19" r="3" fill="#23845c"/>
+<text x="580" y="65" fill="#23845c">Demand 1.25x</text>
+<text x="450" y="495" text-anchor="middle">Realized green fraction</text>
+<text transform="translate(20,270) rotate(-90)" text-anchor="middle">Window delay (vehicle-hours)</text>
+<text x="450" y="530" text-anchor="middle" fill="#555">Reproducible numerical evidence; not field-performance validation</text></g></svg>

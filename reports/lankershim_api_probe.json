@@ -1,0 +1,1026 @@
+{
+  "retrieved_utc": "2026-10-14T15:28:21.129549+00:00",
+  "scope": "Coverage and schema probe only; not complete trajectories or model validation",
+  "license_note": "Catalog lists CC BY-SA 3.0; host metadata lists CC BY-SA 4.0. Resolve file-specific terms before redistribution.",
+  "queries": {
+    "coverage": {
+      "url": "https://data.transportation.gov/resource/8ect-6jqj.json?%24query=SELECT+location%2C+count%28%2A%29+AS+rows%2C+min%28global_time%29+AS+first_time%2C+max%28global_time%29+AS+last_time+WHERE+location%3D%27lankershim%27+GROUP+BY+location",
+      "sha256": "5d78e7b30387e5be4a9813b3c6ba51ad3b84bcdb59bb62ba5c43e052eb611bed",
+      "bytes": 102,
+      "returned_rows": 1,
+      "results": [
+        {
+          "location": "lankershim",
+          "rows": "1607319",
+          "first_time": "1118935680200",
+          "last_time": "1118937747000"
+        }
+      ]
+    },
+    "movements": {
+      "url": "https://data.transportation.gov/resource/8ect-6jqj.json?%24query=SELECT+direction%2C+section_id%2C+int_id%2C+movement%2C+count%28%2A%29+AS+rows%2C+min%28global_time%29+AS+first_time%2C+max%28global_time%29+AS+last_time+WHERE+location%3D%27lankershim%27+GROUP+BY+direction%2C+section_id%2C+int_id%2C+movement+ORDER+BY+direction%2C+section_id%2C+int_id%2C+movement+LIMIT+1000",
+      "sha256": "a437fb7b7f9523582af01c04990d2879769ad4b456ce22c3dfda97ef2e770c5d",
+      "bytes": 10101,
+      "returned_rows": 75,
+      "results": [
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "11126",
+          "first_time": "1118935700900",
+          "last_time": "1118937747000"
+        },
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "1",
+          "movement": "1",
+          "rows": "878",
+          "first_time": "1118936071200",
+          "last_time": "1118937587900"
+        },
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "1",
+          "rows": "6566",
+          "first_time": "1118935739800",
+          "last_time": "1118937625800"
+        },
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "2",
+          "rows": "8749",
+          "first_time": "1118935733700",
+          "last_time": "1118937745600"
+        },
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "3",
+          "rows": "1721",
+          "first_time": "1118935700200",
+          "last_time": "1118937609700"
+        },
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "2",
+          "rows": "1352",
+          "first_time": "1118935760900",
+          "last_time": "1118937604600"
+        },
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "3",
+          "rows": "1473",
+          "first_time": "1118935719000",
+          "last_time": "1118937640800"
+        },
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "2",
+          "rows": "1247",
+          "first_time": "1118935870300",
+          "last_time": "1118937508500"
+        },
+        {
+          "direction": "1",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "3",
+          "rows": "271",
+          "first_time": "1118936052800",
+          "last_time": "1118937589100"
+        },
+        {
+          "direction": "1",
+          "section_id": "2",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "76",
+          "first_time": "1118935762700",
+          "last_time": "1118937383300"
+        },
+        {
+          "direction": "1",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "2387",
+          "first_time": "1118935739500",
+          "last_time": "1118937638600"
+        },
+        {
+          "direction": "1",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "2",
+          "rows": "129",
+          "first_time": "1118936061400",
+          "last_time": "1118937635600"
+        },
+        {
+          "direction": "1",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "75",
+          "first_time": "1118935951200",
+          "last_time": "1118936997000"
+        },
+        {
+          "direction": "1",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "2",
+          "rows": "64",
+          "first_time": "1118936171100",
+          "last_time": "1118937251300"
+        },
+        {
+          "direction": "1",
+          "section_id": "5",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "5",
+          "first_time": "1118937418500",
+          "last_time": "1118937418900"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "9861",
+          "first_time": "1118935689000",
+          "last_time": "1118937693100"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "1",
+          "movement": "1",
+          "rows": "13988",
+          "first_time": "1118935680200",
+          "last_time": "1118937597400"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "1",
+          "movement": "2",
+          "rows": "1692",
+          "first_time": "1118935695600",
+          "last_time": "1118937517400"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "1",
+          "movement": "3",
+          "rows": "25670",
+          "first_time": "1118935680200",
+          "last_time": "1118937602900"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "1",
+          "rows": "35678",
+          "first_time": "1118935688000",
+          "last_time": "1118937679700"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "2",
+          "rows": "9485",
+          "first_time": "1118935743900",
+          "last_time": "1118937653100"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "3",
+          "rows": "6697",
+          "first_time": "1118935694500",
+          "last_time": "1118937611300"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "1",
+          "rows": "21305",
+          "first_time": "1118935705400",
+          "last_time": "1118937692300"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "2",
+          "rows": "1471",
+          "first_time": "1118935874200",
+          "last_time": "1118937603300"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "3",
+          "rows": "819",
+          "first_time": "1118935716600",
+          "last_time": "1118937639800"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "1",
+          "rows": "38892",
+          "first_time": "1118935724000",
+          "last_time": "1118937702800"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "2",
+          "rows": "2600",
+          "first_time": "1118935962800",
+          "last_time": "1118937598000"
+        },
+        {
+          "direction": "2",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "3",
+          "rows": "1511",
+          "first_time": "1118935765500",
+          "last_time": "1118937662100"
+        },
+        {
+          "direction": "2",
+          "section_id": "1",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "3164",
+          "first_time": "1118935754000",
+          "last_time": "1118937558300"
+        },
+        {
+          "direction": "2",
+          "section_id": "2",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "296145",
+          "first_time": "1118935681700",
+          "last_time": "1118937675500"
+        },
+        {
+          "direction": "2",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "116913",
+          "first_time": "1118935691600",
+          "last_time": "1118937690300"
+        },
+        {
+          "direction": "2",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "2",
+          "rows": "7",
+          "first_time": "1118936121600",
+          "last_time": "1118937359900"
+        },
+        {
+          "direction": "2",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "3",
+          "rows": "83",
+          "first_time": "1118935835900",
+          "last_time": "1118936328600"
+        },
+        {
+          "direction": "2",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "112753",
+          "first_time": "1118935716600",
+          "last_time": "1118937700500"
+        },
+        {
+          "direction": "2",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "2",
+          "rows": "116",
+          "first_time": "1118936475900",
+          "last_time": "1118936847400"
+        },
+        {
+          "direction": "2",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "3",
+          "rows": "161",
+          "first_time": "1118936523400",
+          "last_time": "1118937309300"
+        },
+        {
+          "direction": "2",
+          "section_id": "5",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "4556",
+          "first_time": "1118935726400",
+          "last_time": "1118937703600"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "18015",
+          "first_time": "1118935689000",
+          "last_time": "1118937656800"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "1",
+          "movement": "2",
+          "rows": "1328",
+          "first_time": "1118935696600",
+          "last_time": "1118937601600"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "1",
+          "movement": "3",
+          "rows": "309",
+          "first_time": "1118936224900",
+          "last_time": "1118937053200"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "1",
+          "rows": "4210",
+          "first_time": "1118935689000",
+          "last_time": "1118937514300"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "2",
+          "rows": "4700",
+          "first_time": "1118935704100",
+          "last_time": "1118937653600"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "3",
+          "rows": "4459",
+          "first_time": "1118935710500",
+          "last_time": "1118937608600"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "1",
+          "rows": "26",
+          "first_time": "1118937251000",
+          "last_time": "1118937253500"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "2",
+          "rows": "705",
+          "first_time": "1118935804900",
+          "last_time": "1118937605100"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "3",
+          "rows": "349",
+          "first_time": "1118935739000",
+          "last_time": "1118937561900"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "1",
+          "rows": "88",
+          "first_time": "1118936501800",
+          "last_time": "1118936889200"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "2",
+          "rows": "417",
+          "first_time": "1118935999300",
+          "last_time": "1118937617800"
+        },
+        {
+          "direction": "3",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "3",
+          "rows": "166",
+          "first_time": "1118935776200",
+          "last_time": "1118937029800"
+        },
+        {
+          "direction": "3",
+          "section_id": "1",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "111",
+          "first_time": "1118935700100",
+          "last_time": "1118937602000"
+        },
+        {
+          "direction": "3",
+          "section_id": "2",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "15",
+          "first_time": "1118936708500",
+          "last_time": "1118937509600"
+        },
+        {
+          "direction": "3",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "213",
+          "first_time": "1118935809400",
+          "last_time": "1118937413900"
+        },
+        {
+          "direction": "3",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "2",
+          "rows": "271",
+          "first_time": "1118935835100",
+          "last_time": "1118937466800"
+        },
+        {
+          "direction": "3",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "62",
+          "first_time": "1118935894600",
+          "last_time": "1118936752000"
+        },
+        {
+          "direction": "3",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "2",
+          "rows": "32",
+          "first_time": "1118935891400",
+          "last_time": "1118935894500"
+        },
+        {
+          "direction": "3",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "3",
+          "rows": "2",
+          "first_time": "1118936751500",
+          "last_time": "1118936751600"
+        },
+        {
+          "direction": "3",
+          "section_id": "5",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "31",
+          "first_time": "1118935940100",
+          "last_time": "1118937030200"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "984",
+          "first_time": "1118935693600",
+          "last_time": "1118937669900"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "1",
+          "movement": "1",
+          "rows": "13177",
+          "first_time": "1118935723200",
+          "last_time": "1118937676700"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "1",
+          "rows": "26490",
+          "first_time": "1118935746600",
+          "last_time": "1118937669800"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "2",
+          "rows": "26595",
+          "first_time": "1118935711600",
+          "last_time": "1118937745500"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "2",
+          "movement": "3",
+          "rows": "1099",
+          "first_time": "1118935759800",
+          "last_time": "1118937579700"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "1",
+          "rows": "29638",
+          "first_time": "1118935690200",
+          "last_time": "1118937641400"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "2",
+          "rows": "2191",
+          "first_time": "1118935749800",
+          "last_time": "1118937604000"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "3",
+          "movement": "3",
+          "rows": "627",
+          "first_time": "1118935737800",
+          "last_time": "1118937560700"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "1",
+          "rows": "33019",
+          "first_time": "1118935683300",
+          "last_time": "1118937596700"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "2",
+          "rows": "2781",
+          "first_time": "1118935868400",
+          "last_time": "1118937620000"
+        },
+        {
+          "direction": "4",
+          "section_id": "0",
+          "int_id": "4",
+          "movement": "3",
+          "rows": "445",
+          "first_time": "1118935894500",
+          "last_time": "1118937590000"
+        },
+        {
+          "direction": "4",
+          "section_id": "1",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "9",
+          "first_time": "1118936017500",
+          "last_time": "1118936878300"
+        },
+        {
+          "direction": "4",
+          "section_id": "2",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "102478",
+          "first_time": "1118935713900",
+          "last_time": "1118937675800"
+        },
+        {
+          "direction": "4",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "434432",
+          "first_time": "1118935691700",
+          "last_time": "1118937739500"
+        },
+        {
+          "direction": "4",
+          "section_id": "3",
+          "int_id": "0",
+          "movement": "2",
+          "rows": "2050",
+          "first_time": "1118935818700",
+          "last_time": "1118937635300"
+        },
+        {
+          "direction": "4",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "119983",
+          "first_time": "1118935684600",
+          "last_time": "1118937637600"
+        },
+        {
+          "direction": "4",
+          "section_id": "4",
+          "int_id": "0",
+          "movement": "2",
+          "rows": "101",
+          "first_time": "1118936169100",
+          "last_time": "1118937249500"
+        },
+        {
+          "direction": "4",
+          "section_id": "5",
+          "int_id": "0",
+          "movement": "1",
+          "rows": "36025",
+          "first_time": "1118935683300",
+          "last_time": "1118937594700"
+        }
+      ]
+    },
+    "sample": {
+      "url": "https://data.transportation.gov/resource/8ect-6jqj.json?%24query=SELECT+%2A+WHERE+location%3D%27lankershim%27+ORDER+BY+global_time%2C+vehicle_id%2C+frame_id+LIMIT+100",
+      "sha256": "ddf18497c4c9eaef78c7ac6aa9294c094465d30d9ae046f4952ef6f06b842e23",
+      "bytes": 45301,
+      "returned_rows": 100,
+      "results": null
+    },
+    "time_bins": {
+      "url": "https://data.transportation.gov/resource/8ect-6jqj.json?%24query=SELECT+floor%28global_time%2F60000%29+AS+minute_bin%2C+count%28%2A%29+AS+rows%2C+min%28global_time%29+AS+first_time%2C+max%28global_time%29+AS+last_time%2C+min%28frame_id%29+AS+first_frame%2C+max%28frame_id%29+AS+last_frame+WHERE+location%3D%27lankershim%27+GROUP+BY+minute_bin+ORDER+BY+minute_bin+LIMIT+1000",
+      "sha256": "fcfd4a604995c23364ae7f176d339fea67c496878b0a678a5ea2165001440747",
+      "bytes": 4895,
+      "returned_rows": 35,
+      "results": [
+        {
+          "minute_bin": "18648928",
+          "rows": "17451",
+          "first_time": "1118935680200",
+          "last_time": "1118935739900",
+          "first_frame": "3",
+          "last_frame": "600"
+        },
+        {
+          "minute_bin": "18648929",
+          "rows": "41423",
+          "first_time": "1118935740000",
+          "last_time": "1118935799900",
+          "first_frame": "601",
+          "last_frame": "1200"
+        },
+        {
+          "minute_bin": "18648930",
+          "rows": "30262",
+          "first_time": "1118935800000",
+          "last_time": "1118935859900",
+          "first_frame": "1201",
+          "last_frame": "1800"
+        },
+        {
+          "minute_bin": "18648931",
+          "rows": "35138",
+          "first_time": "1118935860000",
+          "last_time": "1118935919900",
+          "first_frame": "1801",
+          "last_frame": "2400"
+        },
+        {
+          "minute_bin": "18648932",
+          "rows": "51339",
+          "first_time": "1118935920000",
+          "last_time": "1118935979900",
+          "first_frame": "2401",
+          "last_frame": "3000"
+        },
+        {
+          "minute_bin": "18648933",
+          "rows": "51265",
+          "first_time": "1118935980000",
+          "last_time": "1118936039900",
+          "first_frame": "3001",
+          "last_frame": "3600"
+        },
+        {
+          "minute_bin": "18648934",
+          "rows": "47326",
+          "first_time": "1118936040000",
+          "last_time": "1118936099900",
+          "first_frame": "3601",
+          "last_frame": "4200"
+        },
+        {
+          "minute_bin": "18648935",
+          "rows": "31710",
+          "first_time": "1118936100000",
+          "last_time": "1118936159900",
+          "first_frame": "4201",
+          "last_frame": "4800"
+        },
+        {
+          "minute_bin": "18648936",
+          "rows": "43928",
+          "first_time": "1118936160000",
+          "last_time": "1118936219900",
+          "first_frame": "4801",
+          "last_frame": "5400"
+        },
+        {
+          "minute_bin": "18648937",
+          "rows": "42015",
+          "first_time": "1118936220000",
+          "last_time": "1118936279900",
+          "first_frame": "5401",
+          "last_frame": "6000"
+        },
+        {
+          "minute_bin": "18648938",
+          "rows": "40277",
+          "first_time": "1118936280000",
+          "last_time": "1118936339900",
+          "first_frame": "6001",
+          "last_frame": "6600"
+        },
+        {
+          "minute_bin": "18648939",
+          "rows": "41340",
+          "first_time": "1118936340000",
+          "last_time": "1118936399900",
+          "first_frame": "6601",
+          "last_frame": "7200"
+        },
+        {
+          "minute_bin": "18648940",
+          "rows": "39224",
+          "first_time": "1118936400000",
+          "last_time": "1118936459900",
+          "first_frame": "7201",
+          "last_frame": "7800"
+        },
+        {
+          "minute_bin": "18648941",
+          "rows": "42369",
+          "first_time": "1118936460000",
+          "last_time": "1118936519900",
+          "first_frame": "7801",
+          "last_frame": "8400"
+        },
+        {
+          "minute_bin": "18648942",
+          "rows": "45233",
+          "first_time": "1118936520000",
+          "last_time": "1118936579900",
+          "first_frame": "8401",
+          "last_frame": "9000"
+        },
+        {
+          "minute_bin": "18648943",
+          "rows": "34205",
+          "first_time": "1118936580000",
+          "last_time": "1118936639900",
+          "first_frame": "9001",
+          "last_frame": "9600"
+        },
+        {
+          "minute_bin": "18648944",
+          "rows": "41118",
+          "first_time": "1118936640000",
+          "last_time": "1118936699900",
+          "first_frame": "9601",
+          "last_frame": "10200"
+        },
+        {
+          "minute_bin": "18648945",
+          "rows": "49374",
+          "first_time": "1118936700000",
+          "last_time": "1118936759900",
+          "first_frame": "1",
+          "last_frame": "10800"
+        },
+        {
+          "minute_bin": "18648946",
+          "rows": "44273",
+          "first_time": "1118936760000",
+          "last_time": "1118936819900",
+          "first_frame": "601",
+          "last_frame": "11207"
+        },
+        {
+          "minute_bin": "18648947",
+          "rows": "54842",
+          "first_time": "1118936820000",
+          "last_time": "1118936879900",
+          "first_frame": "1201",
+          "last_frame": "1800"
+        },
+        {
+          "minute_bin": "18648948",
+          "rows": "59091",
+          "first_time": "1118936880000",
+          "last_time": "1118936939900",
+          "first_frame": "1801",
+          "last_frame": "2400"
+        },
+        {
+          "minute_bin": "18648949",
+          "rows": "60974",
+          "first_time": "1118936940000",
+          "last_time": "1118936999900",
+          "first_frame": "2401",
+          "last_frame": "3000"
+        },
+        {
+          "minute_bin": "18648950",
+          "rows": "74413",
+          "first_time": "1118937000000",
+          "last_time": "1118937059900",
+          "first_frame": "3001",
+          "last_frame": "3600"
+        },
+        {
+          "minute_bin": "18648951",
+          "rows": "59869",
+          "first_time": "1118937060000",
+          "last_time": "1118937119900",
+          "first_frame": "3601",
+          "last_frame": "4200"
+        },
+        {
+          "minute_bin": "18648952",
+          "rows": "64075",
+          "first_time": "1118937120000",
+          "last_time": "1118937179900",
+          "first_frame": "4201",
+          "last_frame": "4800"
+        },
+        {
+          "minute_bin": "18648953",
+          "rows": "61413",
+          "first_time": "1118937180000",
+          "last_time": "1118937239900",
+          "first_frame": "4801",
+          "last_frame": "5400"
+        },
+        {
+          "minute_bin": "18648954",
+          "rows": "65085",
+          "first_time": "1118937240000",
+          "last_time": "1118937299900",
+          "first_frame": "5401",
+          "last_frame": "6000"
+        },
+        {
+          "minute_bin": "18648955",
+          "rows": "71902",
+          "first_time": "1118937300000",
+          "last_time": "1118937359900",
+          "first_frame": "6001",
+          "last_frame": "6600"
+        },
+        {
+          "minute_bin": "18648956",
+          "rows": "59641",
+          "first_time": "1118937360000",
+          "last_time": "1118937419900",
+          "first_frame": "6601",
+          "last_frame": "7200"
+        },
+        {
+          "minute_bin": "18648957",
+          "rows": "61270",
+          "first_time": "1118937420000",
+          "last_time": "1118937479900",
+          "first_frame": "7201",
+          "last_frame": "7800"
+        },
+        {
+          "minute_bin": "18648958",
+          "rows": "52791",
+          "first_time": "1118937480000",
+          "last_time": "1118937539900",
+          "first_frame": "7801",
+          "last_frame": "8400"
+        },
+        {
+          "minute_bin": "18648959",
+          "rows": "51540",
+          "first_time": "1118937540000",
+          "last_time": "1118937599900",
+          "first_frame": "8401",
+          "last_frame": "9000"
+        },
+        {
+          "minute_bin": "18648960",
+          "rows": "35122",
+          "first_time": "1118937600000",
+          "last_time": "1118937659900",
+          "first_frame": "9001",
+          "last_frame": "9600"
+        },
+        {
+          "minute_bin": "18648961",
+          "rows": "5750",
+          "first_time": "1118937660000",
+          "last_time": "1118937719900",
+          "first_frame": "9601",
+          "last_frame": "10200"
+        },
+        {
+          "minute_bin": "18648962",
+          "rows": "271",
+          "first_time": "1118937720000",
+          "last_time": "1118937747000",
+          "first_frame": "10201",
+          "last_frame": "10471"
+        }
+      ]
+    },
+    "duplicate_keys": {
+      "url": "https://data.transportation.gov/resource/8ect-6jqj.json?%24query=SELECT+vehicle_id%2C+global_time%2C+count%28%2A%29+AS+copies+WHERE+location%3D%27lankershim%27+GROUP+BY+vehicle_id%2C+global_time+HAVING+count%28%2A%29+%3E+1+ORDER+BY+vehicle_id%2C+global_time+LIMIT+100",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "returned_rows": 0,
+      "results": []
+    },
+    "frame_origins": {
+      "url": "https://data.transportation.gov/resource/8ect-6jqj.json?%24query=SELECT+global_time+-+100%2A%28frame_id-1%29+AS+frame_origin%2C+count%28%2A%29+AS+rows%2C+min%28global_time%29+AS+first_time%2C+max%28global_time%29+AS+last_time+WHERE+location%3D%27lankershim%27+GROUP+BY+frame_origin+ORDER+BY+frame_origin+LIMIT+1000",
+      "sha256": "d8c99607f600bda8ac1b3e672e3ebc185f3601e663e5a9baf8e929daa634bd2e",
+      "bytes": 215,
+      "returned_rows": 2,
+      "results": [
+        {
+          "frame_origin": "1118935680000",
+          "rows": "705294",
+          "first_time": "1118935680200",
+          "last_time": "1118936800600"
+        },
+        {
+          "frame_origin": "1118936700000",
+          "rows": "902025",
+          "first_time": "1118936700000",
+          "last_time": "1118937747000"
+        }
+      ]
+    }
+  }
+}

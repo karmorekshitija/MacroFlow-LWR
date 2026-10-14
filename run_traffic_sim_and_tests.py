@@ -1,6 +1,6 @@
 """
 MacroFlow-LWR: Continuum Traffic Shockwave PDE Simulator (Lighthill-Whitham-Richards
-& Daganzo 1994 Cell Transmission Model) and Signal Timing Optimizer.
+and Daganzo-style Cell Transmission Model) with synthetic signal-control scenarios.
 
 Author: Kshitija Karmore (B.Tech Civil Engineering, 2nd Year, IIT Delhi)
 Coursework Grounding:
@@ -9,7 +9,7 @@ Coursework Grounding:
   - MTL: Differential Equations & Numerical Conservation Laws
   - COL: Computer Science & Programming
 
-Paper Reproduction & Reference Grounding:
+Reference Grounding:
   - Daganzo, C. F. (1994). "The cell transmission model: A dynamic representation of
     highway traffic consistent with the hydrodynamic theory." Transportation Research
     Part B: Methodological, 28(4), 269-287.
@@ -19,7 +19,6 @@ Paper Reproduction & Reference Grounding:
 import csv
 import json
 import math
-import os
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
@@ -75,6 +74,11 @@ class SimulationMetrics:
     max_queue_length_m: float
     max_queue_cells: int
     mass_conservation_error_veh: float
+    total_demand_veh: float
+    final_external_queue_veh: float
+    external_wait_veh_h: float
+    network_conservation_error_veh: float
+    actual_green_seconds_by_cycle: List[float]
 
 
 # ---------------------------------------------------------------------------
@@ -119,9 +123,13 @@ def receiving_supply_greenshields(k_veh_m: float) -> float:
 # ---------------------------------------------------------------------------
 # 2. Rankine-Hugoniot Shockwave Speed Verifier (CVL2601)
 # ---------------------------------------------------------------------------
-def verify_rankine_hugoniot_shockwave() -> Dict[str, float]:
+def verify_rankine_hugoniot_shockwave(
+    num_cells: int = NUM_CELLS,
+    target_cfl: float = 0.65,
+    simulation_time_s: float = 120.0,
+) -> Dict[str, float]:
     """
-    Verifies the numerical Godunov shockwave propagation speed against the analytical
+    Tracks the numerical Godunov shock front and compares its speed with the analytical
     Rankine-Hugoniot jump condition:
         u_shock = (q(k_R) - q(k_L)) / (k_R - k_L)
     Scenario: Free-flowing upstream state k_L = 0.025 veh/m (25 veh/km, q_L = 1500 veh/h)
@@ -135,39 +143,66 @@ def verify_rankine_hugoniot_shockwave() -> Dict[str, float]:
     # Analytical Rankine-Hugoniot shockwave speed (negative = moving upstream)
     u_shock_analytical_ms = (q_R - q_L) / (k_R - k_L)
 
-    # Simulate a pure Riemann problem on 40 cells for 120 seconds (60 steps)
-    # Shock initially at cell 30 (x0 = 1500 m)
-    k = [k_L if i < 30 else k_R for i in range(NUM_CELLS)]
-    x_shock_0 = 30 * DX_M  # 1500.0 m
-    sim_steps = 60
-    t_riemann = sim_steps * DT_S  # 120.0 s
+    if isinstance(num_cells, bool) or not isinstance(num_cells, int) or num_cells < 8:
+        raise ValueError("num_cells must be an integer >= 8")
+    if not math.isfinite(target_cfl) or not 0.0 < target_cfl <= 1.0:
+        raise ValueError("target_cfl must be in (0, 1]")
+    if not math.isfinite(simulation_time_s) or not 0.0 < simulation_time_s <= 120.0:
+        raise ValueError("simulation_time_s must be in (0, 120]")
+    dx_m = CORRIDOR_LENGTH_M / num_cells
+    nominal_dt_s = target_cfl * dx_m / VF_MS
+    sim_steps = math.ceil(simulation_time_s / nominal_dt_s)
+    dt_s = simulation_time_s / sim_steps
+    initial_shock_index = int(0.75 * num_cells)
+    k = [k_L if i < initial_shock_index else k_R for i in range(num_cells)]
+    x_shock_0 = initial_shock_index * dx_m
 
     for _ in range(sim_steps):
-        fluxes = [0.0] * (NUM_CELLS + 1)
+        fluxes = [0.0] * (num_cells + 1)
         fluxes[0] = q_L  # steady upstream inflow
-        fluxes[NUM_CELLS] = 0.0  # blocked downstream boundary
-        for i in range(1, NUM_CELLS):
+        fluxes[num_cells] = 0.0  # blocked downstream boundary
+        for i in range(1, num_cells):
             fluxes[i] = min(sending_demand_triangular(k[i - 1]), receiving_supply_triangular(k[i]))
-        for i in range(NUM_CELLS):
-            k[i] = k[i] + (DT_S / DX_M) * (fluxes[i] - fluxes[i + 1])
+        for i in range(num_cells):
+            k[i] = k[i] + (dt_s / dx_m) * (fluxes[i] - fluxes[i + 1])
 
-    # Total jammed excess mass accumulated upstream of cell 30:
-    # Exact shock position from integral conservation law:
-    jam_mass_upstream = sum(max(0.0, k[i] - k_L) * DX_M for i in range(30))
-    shock_displacement_m = -jam_mass_upstream / (k_R - k_L)
-    u_shock_numerical_ms = shock_displacement_m / t_riemann
+    midpoint_density = 0.5 * (k_L + k_R)
+    transition_indices = [
+        i for i in range(num_cells - 1) if k[i] <= midpoint_density <= k[i + 1]
+    ]
+    if not transition_indices:
+        raise RuntimeError("Unable to locate the numerical shock front")
+    shock_index = max(transition_indices, key=lambda i: k[i + 1] - k[i])
+    density_fraction = (midpoint_density - k[shock_index]) / (k[shock_index + 1] - k[shock_index])
+    shock_x_numerical = (shock_index + 0.5 + density_fraction) * dx_m
+    u_shock_numerical_ms = (shock_x_numerical - x_shock_0) / simulation_time_s
     rel_error_pct = abs(u_shock_numerical_ms - u_shock_analytical_ms) / abs(u_shock_analytical_ms) * 100.0
+
+    jam_mass_upstream = sum(
+        max(0.0, k[i] - k_L) * dx_m for i in range(initial_shock_index)
+    )
+    integral_speed_ms = (-jam_mass_upstream / (k_R - k_L)) / simulation_time_s
 
     return {
         "k_L_veh_km": round(k_L * 1000.0, 2),
         "k_R_veh_km": round(k_R * 1000.0, 2),
         "q_L_veh_h": round(q_L * 3600.0, 2),
+        "num_cells": num_cells,
+        "dx_m": round(dx_m, 4),
+        "dt_s": round(dt_s, 4),
+        "cfl_number": round(VF_MS * dt_s / dx_m, 4),
         "analytical_shock_speed_ms": round(u_shock_analytical_ms, 5),
         "analytical_shock_speed_kmh": round(u_shock_analytical_ms * 3.6, 4),
         "numerical_shock_speed_ms": round(u_shock_numerical_ms, 5),
         "numerical_shock_speed_kmh": round(u_shock_numerical_ms * 3.6, 4),
+        "integral_conservation_speed_ms": round(integral_speed_ms, 5),
+        "tracked_shock_position_m": round(shock_x_numerical, 3),
         "relative_error_pct": round(rel_error_pct, 6),
     }
+
+
+def run_shock_grid_refinement() -> List[Dict[str, float]]:
+    return [verify_rankine_hugoniot_shockwave(num_cells=n) for n in (40, 80, 160)]
 
 
 # ---------------------------------------------------------------------------
@@ -193,13 +228,29 @@ def run_corridor_simulation(
     green_split_ratio: float,
     diagram: str = "triangular",
     adaptive_queue_control: bool = False,
+    demand_scale: float = 1.0,
     export_spacetime_csv: Path = None,
+    green_seconds_by_cycle: List[float] = None,
+    causal_phase_control: bool = False,
 ) -> Tuple[SimulationMetrics, List[List[float]]]:
     """
     Simulates the 40-cell (2.0 km) signalized arterial corridor using the Godunov
     LWR / Cell Transmission Model.
     """
+    if diagram not in ("triangular", "greenshields"):
+        raise ValueError("Unknown fundamental diagram")
+    if not math.isfinite(green_split_ratio) or not 0 <= green_split_ratio <= 1:
+        raise ValueError("green_split_ratio must be in [0, 1]")
+    if not math.isfinite(demand_scale) or demand_scale < 0:
+        raise ValueError("demand_scale must be finite and nonnegative")
     assert CFL_NUMBER <= 1.0 + 1e-9, f"CFL condition violated: {CFL_NUMBER}"
+    if causal_phase_control and (adaptive_queue_control or green_seconds_by_cycle is not None):
+        raise ValueError("Causal phase control cannot be combined with extension or replay")
+    if green_seconds_by_cycle is not None:
+        if adaptive_queue_control or len(green_seconds_by_cycle) != math.ceil(SIM_DURATION_S / CYCLE_TIME_S):
+            raise ValueError("Replay requires one budget per cycle and adaptive control disabled")
+        if any(not math.isfinite(value) or not 0 <= value <= CYCLE_TIME_S or abs(value / DT_S - round(value / DT_S)) > 1e-9 for value in green_seconds_by_cycle):
+            raise ValueError("Green budgets must be timestep multiples within each cycle")
 
     k = [0.012] * NUM_CELLS  # Initial light density: 12 veh/km
     initial_vehicles = sum(cell_k * DX_M for cell_k in k)
@@ -207,15 +258,24 @@ def run_corridor_simulation(
     total_inflow_veh = 0.0
     total_outflow_veh = 0.0
     total_vehicle_seconds = 0.0
+    total_distance_veh_m = 0.0
+    total_demand_veh = 0.0
+    external_queue_veh = 0.0
+    external_wait_seconds = 0.0
     max_queue_cells = 0
 
     spacetime_grid: List[List[float]] = []
 
     send_fn = sending_demand_triangular if diagram == "triangular" else sending_demand_greenshields
     recv_fn = receiving_supply_triangular if diagram == "triangular" else receiving_supply_greenshields
-    k_cong_threshold = KC_VEH_M * 1.15  # Cell is considered in queue if density > 1.15 * k_c
+    critical_density = KC_VEH_M if diagram == "triangular" else KJ_VEH_M/2
+    diagram_capacity = QMAX_VEH_S if diagram == "triangular" else greenshields_flux(critical_density)
+    k_cong_threshold = critical_density * 1.15
 
     effective_green_ratios = []
+    phase_start_s = 0.0
+    green_budget_s = math.ceil(green_split_ratio * CYCLE_TIME_S / DT_S) * DT_S
+    actual_green_seconds = [0.0] * math.ceil(SIM_DURATION_S / CYCLE_TIME_S)
 
     for step in range(NUM_STEPS):
         t_s = step * DT_S
@@ -225,9 +285,9 @@ def run_corridor_simulation(
         if adaptive_queue_control:
             # Measure average density in 6 cells (300 m) immediately upstream of the signal
             upstream_avg_k = sum(k[SIGNAL_CELL_IDX - 6 : SIGNAL_CELL_IDX]) / 6.0
-            if upstream_avg_k > KC_VEH_M * 1.25:
+            if upstream_avg_k > critical_density * 1.25:
                 active_g_ratio = min(0.72, green_split_ratio + 0.14)
-            elif upstream_avg_k > KC_VEH_M * 0.85:
+            elif upstream_avg_k > critical_density * 0.85:
                 active_g_ratio = min(0.68, green_split_ratio + 0.08)
             else:
                 active_g_ratio = green_split_ratio
@@ -237,13 +297,27 @@ def run_corridor_simulation(
         effective_green_ratios.append(active_g_ratio)
         green_time_s = active_g_ratio * CYCLE_TIME_S
         is_green = cycle_phase_s < green_time_s
+        cycle_index = int(t_s // CYCLE_TIME_S)
+        if causal_phase_control:
+            if cycle_phase_s == 0.0:
+                local_density = sum(k[SIGNAL_CELL_IDX - 5:SIGNAL_CELL_IDX + 1]) / 6.0
+                phase_start_s = 0.0 if local_density >= critical_density else min(10.0, CYCLE_TIME_S - green_budget_s)
+            is_green = phase_start_s <= cycle_phase_s < phase_start_s + green_budget_s
+        if green_seconds_by_cycle is not None:
+            is_green = cycle_phase_s < green_seconds_by_cycle[cycle_index]
+        actual_green_seconds[cycle_index] += DT_S if is_green else 0.0
 
         # Compute inter-cell fluxes F_{i-1/2} for i = 0 .. NUM_CELLS
         fluxes = [0.0] * (NUM_CELLS + 1)
 
         # Upstream boundary inflow at x = 0
-        q_demand_in = upstream_demand_profile_veh_s(t_s)
-        fluxes[0] = min(q_demand_in, recv_fn(k[0]))
+        q_demand_in = demand_scale * upstream_demand_profile_veh_s(t_s)
+        arrivals = q_demand_in * DT_S
+        total_demand_veh += arrivals
+        external_queue_veh += arrivals
+        fluxes[0] = min(external_queue_veh / DT_S, recv_fn(k[0]))
+        external_queue_veh = max(0.0, external_queue_veh - fluxes[0] * DT_S)
+        external_wait_seconds += external_queue_veh * DT_S
 
         # Internal cell boundaries
         for i in range(1, NUM_CELLS):
@@ -251,13 +325,16 @@ def run_corridor_simulation(
             r_down = recv_fn(k[i])
             if i - 1 == SIGNAL_CELL_IDX:
                 # Signalized stop-bar between SIGNAL_CELL_IDX and SIGNAL_CELL_IDX + 1
-                sig_capacity = QMAX_VEH_S if is_green else 0.0
+                sig_capacity = diagram_capacity if is_green else 0.0
                 fluxes[i] = min(s_up, r_down, sig_capacity)
             else:
                 fluxes[i] = min(s_up, r_down)
 
         # Downstream free-outflow boundary at x = L
         fluxes[NUM_CELLS] = send_fn(k[NUM_CELLS - 1])
+
+        total_vehicle_seconds += sum(k) * DX_M * DT_S
+        total_distance_veh_m += sum(fluxes[1:]) * DX_M * DT_S
 
         # Conservative Godunov state update
         for i in range(NUM_CELLS):
@@ -266,9 +343,6 @@ def run_corridor_simulation(
         total_inflow_veh += fluxes[0] * DT_S
         total_outflow_veh += fluxes[NUM_CELLS] * DT_S
 
-        # Accumulate total vehicle-seconds on the corridor
-        current_vehicles_on_corridor = sum(cell_k * DX_M for cell_k in k)
-        total_vehicle_seconds += current_vehicles_on_corridor * DT_S
 
         # Count queued cells upstream of the signal
         queued_cells_now = sum(1 for idx in range(SIGNAL_CELL_IDX + 1) if k[idx] >= k_cong_threshold)
@@ -283,18 +357,14 @@ def run_corridor_simulation(
     mass_error = abs((initial_vehicles + total_inflow_veh - total_outflow_veh) - final_vehicles)
 
     # Travel time and delay calculations
-    total_travel_time_veh_h = total_vehicle_seconds / 3600.0
-    # Free-flow traversal time for a single vehicle = L / v_f = 2000 / 16.6667 = 120 s
-    # Total vehicle-distance traveled = sum(q * dx * dt) = free_flow_time * v_f
-    # For vehicles served (initial + inflow), benchmark free-flow travel time:
-    effective_veh_served = initial_vehicles + total_inflow_veh
-    free_flow_time_per_veh_s = CORRIDOR_LENGTH_M / VF_MS  # 120.0 s
-    free_flow_travel_time_veh_h = (effective_veh_served * free_flow_time_per_veh_s) / 3600.0
+    total_travel_time_veh_h = (total_vehicle_seconds + external_wait_seconds) / 3600.0
+    effective_veh_served = initial_vehicles + total_demand_veh
+    free_flow_travel_time_veh_h = total_distance_veh_m / VF_MS / 3600.0
 
     total_delay_veh_h = max(0.0, total_travel_time_veh_h - free_flow_travel_time_veh_h)
     mean_delay_per_veh_s = (total_delay_veh_h * 3600.0) / max(1.0, effective_veh_served)
-    throughput_efficiency_pct = (total_outflow_veh / max(1.0, total_inflow_veh)) * 100.0
-    avg_g_ratio = sum(effective_green_ratios) / len(effective_green_ratios)
+    throughput_efficiency_pct = (total_outflow_veh / effective_veh_served) * 100.0 if effective_veh_served else 0.0
+    avg_g_ratio = sum(actual_green_seconds) / SIM_DURATION_S
 
     if export_spacetime_csv is not None:
         export_spacetime_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -303,7 +373,7 @@ def run_corridor_simulation(
             header = ["time_s"] + [f"cell_{i}_x_{int(i*DX_M)}m_veh_km" for i in range(NUM_CELLS)]
             writer.writerow(header)
             for row_idx, row_vals in enumerate(spacetime_grid):
-                writer.writerow([row_idx * 10] + row_vals)
+                writer.writerow([row_idx * 10 + DT_S] + row_vals)
 
     metrics = SimulationMetrics(
         scenario_name=scenario_name,
@@ -321,6 +391,11 @@ def run_corridor_simulation(
         max_queue_length_m=round(max_queue_cells * DX_M, 1),
         max_queue_cells=max_queue_cells,
         mass_conservation_error_veh=round(mass_error, 10),
+        total_demand_veh=total_demand_veh,
+        final_external_queue_veh=external_queue_veh,
+        external_wait_veh_h=external_wait_seconds / 3600.0,
+        network_conservation_error_veh=abs(initial_vehicles + total_demand_veh - total_outflow_veh - final_vehicles - external_queue_veh),
+        actual_green_seconds_by_cycle=actual_green_seconds,
     )
     return metrics, spacetime_grid
 
@@ -337,7 +412,18 @@ def main():
 
     # 1. Verify Rankine-Hugoniot shockwave speed
     rh_results = verify_rankine_hugoniot_shockwave()
-    assert rh_results["relative_error_pct"] < 1e-6, "Rankine-Hugoniot shock speed mismatch!"
+    assert rh_results["relative_error_pct"] < 3.0, "Shock front error exceeds coarse-grid tolerance"
+    refinement = run_shock_grid_refinement()
+    assert refinement[-1]["relative_error_pct"] < 1.0
+    sensitivity = []
+    for demand_multiplier in (0.75, 1.0, 1.25):
+        for green_ratio in (0.42, 0.52, 0.62):
+            metrics, _ = run_corridor_simulation(
+                scenario_name=f"Synthetic demand {demand_multiplier}x, green {green_ratio}",
+                green_split_ratio=green_ratio,
+                demand_scale=demand_multiplier,
+            )
+            sensitivity.append({"demand_scale": demand_multiplier, **asdict(metrics)})
 
     # 2. Run Baseline Unoptimized Fixed-Time Signal (g/C = 0.42 -> 37.8s green / 90s cycle)
     baseline_metrics, baseline_grid = run_corridor_simulation(
@@ -365,7 +451,7 @@ def main():
 
     # Export optimal fixed-time spacetime grid (g/C = 0.62)
     opt_fixed_metrics, opt_fixed_grid = run_corridor_simulation(
-        scenario_name="Webster-Optimized Fixed Signal (g/C = 0.62)",
+        scenario_name="Fixed Signal Candidate (g/C = 0.62)",
         green_split_ratio=0.62,
         diagram="triangular",
         adaptive_queue_control=False,
@@ -380,6 +466,13 @@ def main():
         adaptive_queue_control=True,
         export_spacetime_csv=data_dir / "spacetime_adaptive_control.csv",
     )
+
+    matched_metrics, _ = run_corridor_simulation(
+        scenario_name="Retrospective cycle-budget replay, green at cycle start",
+        green_split_ratio=0.52,
+        green_seconds_by_cycle=adaptive_metrics.actual_green_seconds_by_cycle,
+    )
+    assert matched_metrics.actual_green_seconds_by_cycle == adaptive_metrics.actual_green_seconds_by_cycle
 
     # 5. Run Greenshields Parabolic Fundamental Diagram Comparison at g/C = 0.54
     gs_metrics, _ = run_corridor_simulation(
@@ -417,7 +510,20 @@ def main():
     assert adaptive_metrics.mass_conservation_error_veh < 1e-7, "Mass conservation violated in adaptive!"
     assert opt_fixed_metrics.mean_delay_per_veh_s < baseline_metrics.mean_delay_per_veh_s
 
+    prospective_comparisons = []
+    for demand_multiplier in (0.75, 1.0, 1.25):
+        fixed, _ = run_corridor_simulation("Fixed cycle-start green", 0.52, demand_scale=demand_multiplier)
+        causal, _ = run_corridor_simulation("Causal queue-based phase", 0.52, demand_scale=demand_multiplier, causal_phase_control=True)
+        assert fixed.actual_green_seconds_by_cycle == causal.actual_green_seconds_by_cycle
+        prospective_comparisons.append({
+            "demand_scale": demand_multiplier,
+            "fixed": asdict(fixed),
+            "causal": asdict(causal),
+            "causal_minus_fixed_delay_veh_h": causal.total_delay_veh_h - fixed.total_delay_veh_h,
+        })
+
     report = {
+        "prospective_equal_budget_comparison": prospective_comparisons,
         "corridor_parameters": {
             "corridor_length_m": CORRIDOR_LENGTH_M,
             "num_cells": NUM_CELLS,
@@ -432,7 +538,16 @@ def main():
             "signal_stopbar_x_m": (SIGNAL_CELL_IDX + 1) * DX_M,
             "cycle_time_s": CYCLE_TIME_S,
         },
+        "evidence_scope": "Synthetic corridor. Finite-window delay = pre-update cell occupancy time + residual external queue waiting time - cell-outflow distance / free-flow speed. Arrivals are available for admission at each step start; residual queue waits a full step. Mean is accumulated delay per initial plus arriving vehicle, not completed-trip delay. Throughput denominator includes initial vehicles and all arrivals. Adaptive and fixed green budgets differ; no cross-street model or field validation.",
         "rankine_hugoniot_verification": rh_results,
+        "shock_grid_refinement": refinement,
+        "equal_green_budget_comparison": {
+            "scope": "Retrospective ablation: replay adaptive realized green seconds at each cycle start. Uses future knowledge; not a deployable fixed-time policy or evidence of controller superiority.",
+            "adaptive": asdict(adaptive_metrics),
+            "cycle_budget_replay": asdict(matched_metrics),
+            "adaptive_minus_replay_delay_veh_h": adaptive_metrics.total_delay_veh_h - matched_metrics.total_delay_veh_h,
+        },
+        "demand_sensitivity": sensitivity,
         "key_scenarios": {
             "baseline_g042": asdict(baseline_metrics),
             "optimized_fixed_g062": asdict(opt_fixed_metrics),
@@ -458,17 +573,17 @@ def main():
         f"Numerical = {rh_results['numerical_shock_speed_kmh']:.4f} km/h (Error = {rh_results['relative_error_pct']:.6f}%)"
     )
     print(
-        f"Baseline Signal (g/C=0.42): Mean Delay = {baseline_metrics.mean_delay_per_veh_s:.2f} s/veh | "
+        f"Baseline Signal (g/C=0.42): Window delay per vehicle = {baseline_metrics.mean_delay_per_veh_s:.2f} s/veh | "
         f"Max Queue = {baseline_metrics.max_queue_length_m:.1f} m | Throughput = {baseline_metrics.throughput_efficiency_pct:.2f}% | "
         f"Mass Error = {baseline_metrics.mass_conservation_error_veh:.2e} veh"
     )
     print(
-        f"Optimized Signal (g/C=0.62): Mean Delay = {opt_fixed_metrics.mean_delay_per_veh_s:.2f} s/veh "
+        f"Optimized Signal (g/C=0.62): Window delay per vehicle = {opt_fixed_metrics.mean_delay_per_veh_s:.2f} s/veh "
         f"(-{delay_reduction_fixed_pct:.2f}%) | Max Queue = {opt_fixed_metrics.max_queue_length_m:.1f} m "
         f"(-{queue_reduction_fixed_pct:.2f}%) | Throughput = {opt_fixed_metrics.throughput_efficiency_pct:.2f}%"
     )
     print(
-        f"Adaptive Queue Control (avg g/C={adaptive_metrics.green_split_ratio:.3f}): Mean Delay = {adaptive_metrics.mean_delay_per_veh_s:.2f} s/veh "
+        f"Adaptive Queue Control (avg g/C={adaptive_metrics.green_split_ratio:.3f}): Window delay per vehicle = {adaptive_metrics.mean_delay_per_veh_s:.2f} s/veh "
         f"(-{delay_reduction_adaptive_pct:.2f}%) | Max Queue = {adaptive_metrics.max_queue_length_m:.1f} m "
         f"(-{queue_reduction_adaptive_pct:.2f}%) | Throughput = {adaptive_metrics.throughput_efficiency_pct:.2f}%"
     )
